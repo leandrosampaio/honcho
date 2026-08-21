@@ -37,6 +37,7 @@ from src.utils.agent_tools import (
     INDUCTION_SPECIALIST_TOOLS,
     create_tool_executor,
 )
+from src.utils.prompt_constants import LANGUAGE_INSTRUCTION
 
 logger = logging.getLogger(__name__)
 
@@ -553,7 +554,9 @@ class DeductionSpecialist(BaseSpecialist):
         if peer_card_enabled:
             peer_card_section = PEER_CARD_SYSTEM_SECTION
 
-        return f"""You are a deductive reasoning agent analyzing observations about the target observee.
+        return f"""{LANGUAGE_INSTRUCTION}
+
+You are a deductive reasoning agent analyzing observations about the target observee.
 
 ## YOUR JOB
 
@@ -682,7 +685,9 @@ class InductionSpecialist(BaseSpecialist):
     ) -> str:
         _ = observed
         _ = peer_card_enabled
-        return """You are an inductive reasoning agent identifying patterns about the target observee.
+        return f"""{LANGUAGE_INSTRUCTION}
+
+You are an inductive reasoning agent identifying patterns about the target observee.
 
 ## YOUR JOB
 
@@ -840,7 +845,9 @@ class CardRefreshSpecialist(BaseSpecialist):
 
 The existing peer card is deliberately NOT shown to you: it may contain entries whose supporting observations have since been removed. Build the card solely from the observations you find in the collection right now. Do not carry over or guess at prior card content — if an identity marker is not supported by a current observation, it does not go on the card."""
 
-        return f"""You are a peer-card maintenance agent for the target observee.
+        return f"""{LANGUAGE_INSTRUCTION}
+
+You are a peer-card maintenance agent for the target observee.
 
 ## YOUR JOB
 

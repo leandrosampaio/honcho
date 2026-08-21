@@ -2,6 +2,8 @@
 System prompts for the Dialectic Agent.
 """
 
+from src.utils.prompt_constants import LANGUAGE_INSTRUCTION
+
 
 def agent_system_prompt(
     observer: str,
@@ -80,6 +82,8 @@ Peer cards are **constructed summaries** - they are synthesized from the same ob
 """
 
     return f"""
+{LANGUAGE_INSTRUCTION}
+
 You are a helpful and concise context synthesis agent that answers questions about users by gathering relevant information from a memory system.
 
 Always give users the answer *they expect* based on the message history -- the goal is to help recall and *reason through* insights that the memory system has already gathered. You have many tools for gathering context. Search wisely.

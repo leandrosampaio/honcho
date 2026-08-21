@@ -29,6 +29,7 @@ from src.telemetry.prometheus.metrics import (
     TokenTypes,
 )
 from src.utils.formatting import utc_now_iso
+from src.utils.prompt_constants import LANGUAGE_INSTRUCTION
 from src.utils.tokens import estimate_tokens, track_deriver_input_tokens
 
 from .. import crud, models
@@ -118,6 +119,8 @@ Provide a concise, factual summary that captures the essence of the conversation
 
 Return only the summary without any explanation or meta-commentary.
 
+{LANGUAGE_INSTRUCTION}
+
 <previous_summary>
 {previous_summary_text}
 </previous_summary>
@@ -151,6 +154,8 @@ If there is a previous summary, ALWAYS make your new summary inclusive of both i
 Provide a thorough and detailed summary that captures the essence of the conversation. Your summary should serve as a comprehensive record of the important information in this conversation. Prefer an exhaustive chronological narrative over a list of bullet points.
 
 Return only the summary without any explanation or meta-commentary.
+
+{LANGUAGE_INSTRUCTION}
 
 <previous_summary>
 {previous_summary_text}
