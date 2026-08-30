@@ -313,22 +313,12 @@ export function register(server: McpServer, ctx: ToolContext) {
     async ({ workspace_id, query, session_id, reasoning_level, scope }) => {
       try {
         const honcho = ctx.clientFor(workspace_id);
-        // The workspace-level chat endpoint has no client method yet in the
-        // published @honcho-ai/sdk release, so call it directly — same
-        // pattern as list_workspaces/create_workspace above.
-        const response = await honcho.http.post<{ content: string | null }>(
-          `/v3/workspaces/${honcho.workspaceId}/chat`,
-          {
-            body: {
-              query,
-              stream: false,
-              session_id,
-              reasoning_level,
-              scope,
-            },
-          },
-        );
-        return textResult(response.content ?? "None");
+        const result = await honcho.chat(query, {
+          session: session_id,
+          reasoningLevel: reasoning_level,
+          scope,
+        });
+        return textResult(result ?? "None");
       } catch (e) {
         return errorResult(
           `Workspace chat failed: ${e instanceof Error ? e.message : String(e)}`,
