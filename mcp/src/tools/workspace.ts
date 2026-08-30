@@ -281,6 +281,52 @@ export function register(server: McpServer, ctx: ToolContext) {
     },
   );
 
+  // ── workspace_chat ──────────────────────────────────────────────────
+  server.registerTool(
+    "workspace_chat",
+    {
+      description: [
+        "Ask a natural-language question across the whole workspace's collective knowledge.",
+        "Performs agentic search and reasoning across ALL peers and observations in the workspace — use this for cross-peer analysis, discovering common themes, or workspace-wide queries.",
+        "For a question about one specific peer, prefer `chat` (peer-scoped) instead — it is faster and more precise.",
+        "Returns a natural-language answer, or 'None' if no relevant information exists.",
+      ].join("\n"),
+      inputSchema: {
+        workspace_id: workspaceIdSchema(ctx),
+        query: z.string().describe("Natural-language question."),
+        session_id: z
+          .string()
+          .optional()
+          .describe("Optional: scope the query to a specific session."),
+        reasoning_level: z
+          .enum(["minimal", "low", "medium", "high", "max"])
+          .optional()
+          .describe("Reasoning effort. Higher = more detailed but slower."),
+        scope: z
+          .union([z.string(), z.array(z.string())])
+          .optional()
+          .describe(
+            "Optional: restrict the query to one or more named scopes (session-union allowlists).",
+          ),
+      },
+    },
+    async ({ workspace_id, query, session_id, reasoning_level, scope }) => {
+      try {
+        const honcho = ctx.clientFor(workspace_id);
+        const result = await honcho.chat(query, {
+          session: session_id,
+          reasoningLevel: reasoning_level,
+          scope,
+        });
+        return textResult(result ?? "None");
+      } catch (e) {
+        return errorResult(
+          `Workspace chat failed: ${e instanceof Error ? e.message : String(e)}`,
+        );
+      }
+    },
+  );
+
   // ── get_metadata ──────────────────────────────────────────────────
   server.registerTool(
     "get_metadata",
