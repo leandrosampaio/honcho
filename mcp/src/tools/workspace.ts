@@ -281,14 +281,14 @@ export function register(server: McpServer, ctx: ToolContext) {
     },
   );
 
-  // ── workspace_chat ──────────────────────────────────────────────────
+  // ── workspace_chat ──────────────────────────────────────────────
   server.registerTool(
     "workspace_chat",
     {
       description: [
-        "Ask a natural-language question across the whole workspace's collective knowledge.",
-        "Performs agentic search and reasoning across ALL peers and observations in the workspace — use this for cross-peer analysis, discovering common themes, or workspace-wide queries.",
-        "For a question about one specific peer, prefer `chat` (peer-scoped) instead — it is faster and more precise.",
+        "Ask a natural-language question about the whole workspace and get an answer from Honcho's reasoning system.",
+        "Reasons across ALL peers and their conclusions — use for cross-peer analysis, common themes, or questions not tied to one peer.",
+        "For questions about a single peer, use `chat` instead.",
         "Returns a natural-language answer, or 'None' if no relevant information exists.",
       ].join("\n"),
       inputSchema: {
@@ -298,25 +298,24 @@ export function register(server: McpServer, ctx: ToolContext) {
           .string()
           .optional()
           .describe("Optional: scope the query to a specific session."),
+        scope: z
+          .union([z.string(), z.array(z.string()).max(100)])
+          .optional()
+          .describe(
+            "Optional: confine recall to a scope. A single scope name answers from that scope's own reasoned view (all conclusion levels). A list of scope names is an allowlist: explicit conclusions from the union of their sessions only.",
+          ),
         reasoning_level: z
           .enum(["minimal", "low", "medium", "high", "max"])
           .optional()
           .describe("Reasoning effort. Higher = more detailed but slower."),
-        scope: z
-          .union([z.string(), z.array(z.string())])
-          .optional()
-          .describe(
-            "Optional: restrict the query to one or more named scopes (session-union allowlists).",
-          ),
       },
     },
-    async ({ workspace_id, query, session_id, reasoning_level, scope }) => {
+    async ({ workspace_id, query, session_id, scope, reasoning_level }) => {
       try {
-        const honcho = ctx.clientFor(workspace_id);
-        const result = await honcho.chat(query, {
+        const result = await ctx.clientFor(workspace_id).chat(query, {
           session: session_id,
-          reasoningLevel: reasoning_level,
           scope,
+          reasoningLevel: reasoning_level,
         });
         return textResult(result ?? "None");
       } catch (e) {
